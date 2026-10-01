@@ -1,9 +1,10 @@
 import os
 import secrets
 
-from django.conf import settings
 from django.http import JsonResponse
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 
 from pretix.base.models import Device, Gate
 from pretix.settings import config
@@ -15,6 +16,7 @@ class APIError(Exception):
         self.status = status
 
 
+@method_decorator(csrf_exempt, name="dispatch")
 class BaseAPIView(View):
 
     def json_response(self, data, status=200):
@@ -134,7 +136,7 @@ class BaseAPIView(View):
         except APIError as exc:
             return self.handle_exception(exc)
 
-
+@method_decorator(csrf_exempt, name="dispatch")
 class GateListView(BaseAPIView):
 
     def get(self, request):
@@ -185,7 +187,7 @@ class GateListView(BaseAPIView):
             }
         )
 
-
+@method_decorator(csrf_exempt, name="dispatch")
 class DeviceListView(BaseAPIView):
 
     def get(self, request):
@@ -249,7 +251,7 @@ class DeviceListView(BaseAPIView):
             }
         )
 
-
+@method_decorator(csrf_exempt, name="dispatch")
 class DeviceGateView(BaseAPIView):
 
     def get_device(self, request, device_id):
