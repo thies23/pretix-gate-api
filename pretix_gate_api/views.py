@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.views import View
 
 from pretix.base.models import Device, Gate
+from pretix.settings import config
 
 
 class APIError(Exception):
@@ -50,11 +51,15 @@ class BaseAPIView(View):
         scheme, token = self.get_auth_header(request)
 
         if scheme.lower() == "bearer":
-            configured_token = getattr(
-                settings,
-                "PRETIX_GATE_API_TOKEN",
-                None,
-            )
+            configured_token = os.environ.get(
+            "PRETIX_GATE_API_TOKEN"
+        )
+            if not configured_token:
+                configured_token = config.get(
+                    "gate_api",
+                    "token",
+                    fallback=None,
+                )
 
             if not configured_token:
                 raise APIError(
